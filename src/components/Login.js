@@ -1,11 +1,23 @@
-import { useRef, useState } from "react";
+import { useRef, useState } from "react"; 
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+
 import Header from "./Header";
 import { checkValidSignInData, checkValidSignUpData } from "../utils/validations";
+import { auth } from "../utils/firebase";
+import { useDispatch } from "react-redux";
+import { addUser } from "../store/UserSlice";
 
-const Login = () => {
+const Login = ({onSignUp}) => {
 
   const [isSignIn, setIsSignIn] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const dispatch = useDispatch();
+ 
 
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
@@ -17,14 +29,56 @@ const Login = () => {
 
   function onSubmitForm(event) {
     event.preventDefault();
-    const errorMessage = !isSignIn
+    const message = !isSignIn
       ? checkValidSignUpData(
           fullNameRef.current.value,
           emailRef.current.value,
           passwordRef.current.value
         )
       : checkValidSignInData(emailRef.current.value, passwordRef.current.value);
-    setErrorMessage(errorMessage);
+    setErrorMessage(message);
+    if (message) return;
+    // Sign Up
+    if (!isSignIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          updateProfile(user, {
+            displayName: fullNameRef.current.value, 
+            photoURL:"https://occ-0-1492-3663.1.nflxso.net/dnm/api/v6/vN7bi_My87NPKvsBoib006Llxzg/AAAABbDdrpeZOAMJgDuzD5581AFTiw4_pFFINZT81G61PDjkN2d4-kO6cfqu1gWzA_CHiiCPbCP3fTv0yUIRARgjzBQX5k5YWAU.png?r=98e",
+          }).then(() => {
+            const { email, displayName, uid, photoURL } = auth.currentUser;
+            dispatch(addUser({ email, displayName, uid, photoURL }));
+            console.log("🚀 ~ .then ~ updateProfile")
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + ' - ' + errorMessage);
+        });
+    } else {
+      // Sign In
+      signInWithEmailAndPassword(
+        auth,
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          // console.log("🚀 ~ .then ~ user:", user)
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+        });
+    }
   }
 
   return (

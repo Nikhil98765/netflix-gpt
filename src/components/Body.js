@@ -1,23 +1,43 @@
-import {createBrowserRouter, RouterProvider} from 'react-router-dom';
-import Login from "./Login";
-import Browse from "./Browse";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
-const routes = createBrowserRouter([
-  {
-    path: '/',
-    element: <Login />
-  },
-  {
-    path: '/browse',
-    element: <Browse />
-  }
-])
+import { addUser, removeUser } from "../store/UserSlice";
+import { Outlet } from "react-router-dom";
+import { auth } from "../utils/firebase";
+
+
 
 const Body = () => {
+  const dispatch = useDispatch();
+   const navigate = useNavigate(); 
+
+  useEffect(() => {
+    // Triggers on every auth change
+    /** 
+     * Note: onAuthStateChanged triggers twice because of initial sign-in and token refresh.
+            This is the default behavior of Firebase for consistent authentication states.
+            Use a flag or one-time listener if you need to avoid the double trigger.
+    */
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        const { email, displayName, uid, photoURL } = user;
+        dispatch(addUser({ email, displayName, uid, photoURL }));
+        navigate("browse");
+        console.log("🚀 ~ onAuthStateChanged ~ onAuthStateChanged")
+      } else {
+        // User is signed out
+        dispatch(removeUser());
+        navigate('/');
+      }
+    });
+  }, [dispatch, navigate]);
 
   return (
     <div>
-      <RouterProvider router={routes} />
+      <Outlet />
     </div>
   );
 };
