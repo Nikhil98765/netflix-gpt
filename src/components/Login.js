@@ -1,7 +1,6 @@
 import { useRef, useState } from "react"; 
 import {
   createUserWithEmailAndPassword,
-  getAuth,
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
@@ -11,6 +10,7 @@ import { checkValidSignInData, checkValidSignUpData } from "../utils/validations
 import { auth } from "../utils/firebase";
 import { useDispatch } from "react-redux";
 import { addUser } from "../store/UserSlice";
+import { NETFLIX_BG_IMG, USER_AVATAR } from "../utils/constants";
 
 const Login = ({onSignUp}) => {
 
@@ -50,11 +50,10 @@ const Login = ({onSignUp}) => {
           const user = userCredential.user;
           updateProfile(user, {
             displayName: fullNameRef.current.value, 
-            photoURL:"https://occ-0-1492-3663.1.nflxso.net/dnm/api/v6/vN7bi_My87NPKvsBoib006Llxzg/AAAABbDdrpeZOAMJgDuzD5581AFTiw4_pFFINZT81G61PDjkN2d4-kO6cfqu1gWzA_CHiiCPbCP3fTv0yUIRARgjzBQX5k5YWAU.png?r=98e",
+            photoURL: USER_AVATAR,
           }).then(() => {
             const { email, displayName, uid, photoURL } = auth.currentUser;
             dispatch(addUser({ email, displayName, uid, photoURL }));
-            console.log("🚀 ~ .then ~ updateProfile")
           });
         })
         .catch((error) => {
@@ -70,8 +69,6 @@ const Login = ({onSignUp}) => {
         passwordRef.current.value
       )
         .then((userCredential) => {
-          const user = userCredential.user;
-          // console.log("🚀 ~ .then ~ user:", user)
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -85,7 +82,7 @@ const Login = ({onSignUp}) => {
     <div>
       <Header />
       <div className="absolute">
-        <img src="https://assets.nflxext.com/ffe/siteui/vlv3/0cf2c109-3af1-4a9d-87d7-aecfac5fe881/web/IN-en-20250217-TRIFECTA-perspective_c3376e06-9aff-4657-aafb-91256a597b7c_small.jpg"
+        <img src={NETFLIX_BG_IMG}
              alt="Netflix Logo"/>
       </div>
       <form onSubmit={onSubmitForm} className="absolute p-12 bg-black w-3/12 my-36 mx-auto left-0 right-0 text-white rounded-lg bg-opacity-80">
