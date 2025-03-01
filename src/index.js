@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './utils/firebase';
+import "material-icons/iconfont/material-icons.css";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
