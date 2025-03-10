@@ -1,10 +1,11 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { addTrailerVideo } from "../store/MoviesSlice";
-import { API_OPTIONS } from "../utils/constants";
+import { addTrailerVideo } from '../store/MoviesSlice';
+import { API_OPTIONS } from '../utils/constants';
 
 export const useMovieTrailer = (movieId) => {
+  const trailerVideo = useSelector((state) => state.movies.trailerVideo);
   const dispatch = useDispatch();
 
   const getMovieVideos = async () => {
@@ -14,16 +15,14 @@ export const useMovieTrailer = (movieId) => {
     );
     const data = await response.json();
 
-    const filteredVideoTrailers = data.results.filter(
-      (video) => video.type === "Trailer"
-    );
-    const trailer = filteredVideoTrailers.length
-      ? filteredVideoTrailers[0]
-      : data.results[0];
+    const filteredVideoTrailers = data.results.filter((video) => video.type === 'Trailer');
+    const trailer = filteredVideoTrailers.length ? filteredVideoTrailers[0] : data.results[0];
     dispatch(addTrailerVideo(trailer));
   };
 
   useEffect(() => {
-    getMovieVideos();
+    if (!trailerVideo) {
+      getMovieVideos();
+    }
   }, [movieId]);
-}
+};
