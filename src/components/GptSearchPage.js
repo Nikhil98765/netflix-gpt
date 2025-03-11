@@ -6,7 +6,7 @@ export const GptSearchPage = () => {
   return (
     <div>
       <div className="fixed -z-10">
-        <img src={NETFLIX_BG_IMG} alt="Netflix Logo" />
+        <img className="h-screen object-cover md:h-auto" src={NETFLIX_BG_IMG} alt="Netflix Logo" />
       </div>
       <GptSearchBar />
       <GptMovieSuggestions />
